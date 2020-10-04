@@ -1,0 +1,5 @@
+jupyter==1.0.0
+pandas==1.1.2
+pytz==2020.1
+notebook==6.1.4
+numpy==1.19.2
