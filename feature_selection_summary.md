@@ -47,7 +47,7 @@
   * Search for a subset of features 
   * build a machine learning model on the selected feature subset 
   * Evaluate model performance 
-  * Repeat 
+  * Repeat until criteria is met 
 * Search mechanisms
   * Forward selection
     * Adds 1 feature at a time until predefined criteria is met 
@@ -101,9 +101,67 @@
 
 ## Filter Other Metrics
 
+### Univariate Model Performance Metrics
+
+* Process 
+  * Build a model with one feature 
+  * Measure performace metrics (e.g. ROC-AUC)
+  * Repeat for all features 
+  * Rank the features and select the top rank features 
+
+* Pros 
+  * We can use any machine learning algorithm 
+  * We can use any performance metric (e.g. ROC-AUC, accuracy, precision, recall, MSE, RMSE, etc.)
+
+* Caveat 
+  
+* Feature subsets may depend on machine learning algorithm used (not model diagnostic) and metric used 
+  
+* Code 
+
+  ```python
+  # classification
+  roc_values = []
+  
+  for feature in X_train.columns: 
+      clf = DecisionTreeClassifier()
+      clf.fit(X_train[feature].fillna(0).to_frame(), y_train)
+      
+      # obtain the predictions
+      y_scored = clf.predict_proba(X_test[feature].to_frame())
+      
+      # calculate the score 
+      roc_values.append(roc_auc_score(y_test, y_scored[:, 1]))
+   
+  # select features
+  roc_values = pd.Series(roc_values)
+  roc_values.index = X_test.columns
+  selected_features = roc_values[roc_values > 0.5].index
+  ```
+
+  
+
 
 
 # Wrapper Methods
+
+## Step Foward 
+
+* Process 
+  * Build models with one feature at a time to find the most predictive feature (e.g. F2)
+  * Build models with two features including F2 that are most predictive (e.g. F2 + F1)
+  * Build models with three features including F2 + F1 that are most predictive (e.g. F2 + F1 + F4)
+  * Repeat until performance does not increase beyond a threshold defined by the user
+
+
+
+## Step Backward 
+
+
+
+## Exhaustive Search
+
+
 
 
 
