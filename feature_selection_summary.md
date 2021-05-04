@@ -157,6 +157,12 @@
 
 ## Step Backward 
 
+* Process 
+  * e.g. There are 4 features (F1, F2, F3, F4)
+  * Build models with all 4 combiation of 3 features (e.g. F1 + F2 + F3 vs. F1 + F2 + F4 vs. F1 + F3 + F4 vs. F2 + F3 + F4 ) and find the most predictive combination 
+  * Build  models with 2 features 
+  * Repeat until performance does not decrease beyond a threshold 
+
 
 
 ## Exhaustive Search
