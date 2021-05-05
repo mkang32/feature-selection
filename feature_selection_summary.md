@@ -167,7 +167,35 @@
 
 ## Exhaustive Search
 
+* Process 
 
+  * Try all possible feature cominations and find the best performing combination
+  * In practice, define the minimum and maximum number of features of the subsets to test 
+
+* Code 
+
+  ```python
+  from mlxtend.feature_selection import ExhaustiveFeatureSelector as EFS
+  from sklearn.ensemble import RandomForestRegressor
+  
+  efs = EFS(RandomForestRegressor(n_estimators=5,
+                                  n_jobs=4,
+                                  random_state=0,
+                                  max_depth=2),
+            min_features=1,
+            max_features=2,
+            scoring='r2',
+            print_progress=True,
+            cv=2)
+  
+  efs = efs.fit(np.array(X_train), y_train)
+  
+  # selected columns
+  selected_feat = X_train.columns[list(efs.best_idx_)]
+  selected_feat
+  ```
+
+  
 
 
 
