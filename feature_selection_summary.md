@@ -201,6 +201,24 @@
 
 # Embedded Methods
 
+## Regression Coefficients
+
+* The coefficients of the predictors are directly proportional to how much that feature contributes to the final value of y 
+* Under the condition of the following assumptions:
+  * Linear relationship between predictor (X) and outcome (Y)
+  * Xs are independent 
+  * Xs are not correlated to each other (no-multicollinearity)
+  * Xs are normally distributed 
+  * For direct coefficient comparison Xs should be in the same scale 
+
+
+
+## Lasso regularization 
+
+
+
+## Trees
+
 
 
 # Hybrid Feature Selection
