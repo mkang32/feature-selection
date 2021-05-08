@@ -211,6 +211,31 @@
   * Xs are normally distributed 
   * For direct coefficient comparison Xs should be in the same scale 
 
+* Code
+
+  ```python
+  from sklearn.preprocessing import StandardScaler 
+  from sklearn.feature_selection import SelectFromModel
+  from sklearn.linear_model import LogisticRegression
+  
+  # scale 
+  scaler = StandardScaler()
+  scaler.fit(X_train)
+  
+  # train 
+  sel_ = SelectFromModel(
+      LogisticRegression(C=1000, penalty='l2', max_iter=300, random_state=10)
+  )
+  
+  sel_.fit(scaler.transform(X_train), y_train)
+  
+  # selected features 
+  selected_feat = X_train.columns[sel_.get_support()]
+  
+  ```
+
+  
+
 
 
 ## Lasso regularization 
