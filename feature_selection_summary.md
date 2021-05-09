@@ -240,6 +240,39 @@
 
 ## Lasso regularization 
 
+* Regularization 
+
+  * Adds a penalty on the parameters of the model to reduce the freedom of the model. 
+  * Less overfit, better generalization. 
+  * For linear models, there are three types of regularization: 
+    * L1 (Lasso)
+    * L2 (Ridge)
+    * L1/L2 (Elastic net)
+
+* L1 (Lasso)
+
+  * $$
+    \frac{1}{2m}\sum(y-\hat{y})^2 + \lambda \sum \phi
+    $$
+
+  * $\hat{y}=\theta_1 X_1 + \theta_2 X_2 + ... + \theta_n X_n$
+
+  * $\lambda$ is the regularization parameter = penalty. Higher the penalty, the bigger the generalization. If the penalty is too high, the model may lose predictive power. 
+
+  * L1 will shrink some parameters to zero, allowing for feature elimination 
+
+* L2 (Ridge)
+
+  * $$
+    \frac{1}{2m}\sum(y-\hat{y})^2 + \lambda \sum \phi^2
+    $$
+
+  * $\hat{y}=\theta_1 X_1 + \theta_2 X_2 + ... + \theta_n X_n$
+
+  * $\lambda$ is the regularization parameter = penalty. Higher the penalty, the bigger the generalization. If the penalty is too high, the model may lose predictive power. 
+
+  * L2 will make coefficients approach to zero but equal to zero. No variable is ever excluded.  
+
 
 
 ## Trees
