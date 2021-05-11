@@ -280,8 +280,14 @@
 * Decision Tree feature importance 
   * How much a feature decrease impurity? = How good the feature is at separating the classes? 
   * Features on the higher nodes have greater gains in impurity, meaning more important ones. 
+  * Meausre of impurity 
+    * Classficiation => Gini or entropy
+    * Regression => variance 
 * Feature importance in random forest 
   * Average of the feature importance across tress 
+  * Note: 
+    * RF in general give preferenec to features with high cardinality 
+    * Correlated features will have the same or similar importance, but reduced importance compared to the same tree built without correlated counterparts 
 * Recursive feature elimination using random forest 
   * Build a random forest model 
   * Calculate feature importance 
