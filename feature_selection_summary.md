@@ -285,20 +285,50 @@
     * Regression => variance 
 * Feature importance in random forest 
   * Average of the feature importance across tress 
+  
   * Note: 
     * RF in general give preferenec to features with high cardinality 
     * Correlated features will have the same or similar importance, but reduced importance compared to the same tree built without correlated counterparts 
+    
+  * Code
+  
+    * ```python
+      
+      ```
+  
+    * 
 * Recursive feature elimination using random forest 
   * Build a random forest model 
+
   * Calculate feature importance 
+
   * Remove the least important feature 
+
   * Repeat until a condition is met 
+    
     * Usually the number of elimination or magnitude of smallest importance
+    
   * Pros 
+    
     * Eliminate one of the highly correlated features --> the other correlated feature will have high feature importance after eliminating one 
+    
   * Cons
+
     * Computationally expensive 
+
+  * Code
+
+    * ```python
+      from sklearn.ensemble import RandomForestClassifier
+      from sklearn.feature_selection import RFE # recursive feature elimination
+      
+      sel_ = RFE(RandomForestClassifier(n_estimators=10, random_state=10), n_features_to_select=27)
+      sel_.fit(X_train, y_train)
+      
+      selected_feat = X_train.columns[sel_.get_support()]
+      ```
 * Gradient Boosted Trees 
+  
   * 
 
 
