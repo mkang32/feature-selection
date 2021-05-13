@@ -327,13 +327,17 @@
       
       selected_feat = X_train.columns[sel_.get_support()]
       ```
-* Gradient Boosted Trees 
+
   
-  * 
-
-
 
 
 
 # Hybrid Feature Selection
+
+## Feature shuffling
+
+* Process
+  * Shuffle values in one feature, evaluate the performance drop 
+  * Repeat the first step for other features 
+  * Compare the performance drop of different features and select the ones with performance drop above threshold (this indicates importance of the feature)
 
