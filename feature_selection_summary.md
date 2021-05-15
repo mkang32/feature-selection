@@ -341,3 +341,14 @@
   * Repeat the first step for other features 
   * Compare the performance drop of different features and select the ones with performance drop above threshold (this indicates importance of the feature)
 
+
+
+## Recursive feature elimination
+
+* Process 
+  * Build a model and falculate feature importance (model 1)
+  * Remove the least important feature 
+  * Rebuild a model (model 2)
+  * Reevaluate the performance 
+  * If drop in performance (model 1 - model 2) is bigger than the threshold, it is an important feature, so keep it. If not, remove the feature. 
+
