@@ -346,7 +346,7 @@
 ## Recursive feature elimination
 
 * Process 
-  * Build a model and falculate feature importance (model 1)
+  * Build a model and calculate feature importance (model 1)
   * Remove the least important feature 
   * Rebuild a model (model 2)
   * Reevaluate the performance 
