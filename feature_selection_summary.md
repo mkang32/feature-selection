@@ -352,3 +352,15 @@
   * Reevaluate the performance 
   * If drop in performance (model 1 - model 2) is bigger than the threshold, it is an important feature, so keep it. If not, remove the feature. 
 
+
+
+## Recursive feature addition 
+
+* Process 
+  * Build a model with all features and calculate feature importance
+  * Pick the most important feature and build a model (model 1)
+  * Calculate the initial performance 
+  * Add the second important feature and build a model (model 2)
+  * If performance increase is bigger than threshold, it is an important feature, so keep it. If not, remove the feature. 
+  * Repeat until all the features in the dataset is examined 
+
