@@ -341,6 +341,49 @@
   * Repeat the first step for other features 
   * Compare the performance drop of different features and select the ones with performance drop above threshold (this indicates importance of the feature)
 
+* Code 
+
+  * ```python
+    from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+    from sklearn.metrics import roc_auc_score, mean_squared_error, r2_score
+    
+    # 1. train a model with all features
+    rf = RandomForestClassifier(
+        n_estimators=50, max_depth=2, random_state=2909, n_jobs=4)
+    
+    rf.fit(X_train, y_train)
+    
+    # 2. shuffle features and assess performance drop
+    train_roc = roc_auc_score(y_train, (rf.predict_proba(X_train))[:, 1])
+    
+    # list to capture the performance shift
+    performance_shift = []
+    
+    # selection  logic
+    for feature in X_train.columns:
+    
+        X_train_c = X_train.copy()
+    
+        # shuffle individual feature
+        X_train_c[feature] = X_train_c[feature].sample(
+            frac=1, random_state=10).reset_index(drop=True)
+    
+        # make prediction with shuffled feature and calculate roc-auc
+        shuff_roc = roc_auc_score(y_train, rf.predict_proba(X_train_c)[:, 1])
+        
+        drift = train_roc - shuff_roc
+    
+        # save the drop in roc-auc
+        performance_shift.append(drift)
+        
+    
+    # 3. capture the selected features
+    feature_importance = pd.Series(performance_shift)
+    feature_importance.index = X_train.columns
+    selected_features = feature_importance[feature_importance > 0].index
+    
+    ```
+
 
 
 ## Recursive feature elimination
@@ -351,6 +394,105 @@
   * Rebuild a model (model 2)
   * Reevaluate the performance 
   * If drop in performance (model 1 - model 2) is bigger than the threshold, it is an important feature, so keep it. If not, remove the feature. 
+
+* Code
+
+  * ```python
+    from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegressor
+    from sklearn.metrics import roc_auc_score, r2_score
+    
+    # 1. Build ML model with all features
+    model_full = GradientBoostingClassifier(n_estimators=10, max_depth=4, random_state=10)
+    
+    model_full.fit(X_train, y_train)
+    
+    y_pred_test = model_full.predict_proba(X_test)[:, 1]
+    roc_full = roc_auc_score(y_test, y_pred_test)
+    
+    # 2. Rank features by importance
+    features = pd.Series(model_full.feature_importances_)
+    features.index = X_train.columns
+    features.sort_values(ascending=True, inplace=True)
+    features = list(features.index)
+    
+    # 3. Select features
+    # recursive feature elimination:
+    
+    # first we arbitrarily set the drop in roc-auc
+    # if the drop is below this threshold,
+    # the feature will be removed
+    tol = 0.0005
+    
+    print('doing recursive feature elimination')
+    
+    # we initialise a list where we will collect the
+    # features we should remove
+    features_to_remove = []
+    
+    # set a counter to know where the loop is
+    count = 1
+    
+    # now we loop over all the features, in order of importance:
+    # remember that features is this list are ordered
+    # by importance
+    for feature in features:
+        
+        print()
+        print('testing feature: ', feature, count, ' out of ', len(features))
+        count = count + 1
+    
+        # initialise model
+        model_int = GradientBoostingClassifier(n_estimators=10, max_depth=4, random_state=10)
+    
+        # fit model with all variables, minus the feature to be evaluated
+        # and also minus all features that were deemed to be removed
+        
+        # note that features_to_remove will be empty in the first rounds
+        # but will have features as the loop proceeds
+        model_int.fit(
+            X_train.drop(features_to_remove + [feature], axis=1), y_train)
+    
+        # make a prediction using the test set
+        y_pred_test = model_int.predict_proba(
+            X_test.drop(features_to_remove + [feature], axis=1))[:, 1]
+    
+        # calculate the new roc-auc
+        roc_int = roc_auc_score(y_test, y_pred_test)
+        print('New Test ROC AUC={}'.format((roc_int)))
+    
+        # print the original roc-auc with all the features
+        print('Full dataset ROC AUC={}'.format((roc_full)))
+    
+        # determine the drop in the roc-auc
+        diff_roc = roc_full - roc_int
+    
+        # compare the drop in roc-auc with the tolerance
+        # we set previously
+        if diff_roc >= tol:
+            print('Drop in ROC AUC={}'.format(diff_roc))
+            print('keep: ', feature)
+            print
+        else:
+            print('Drop in ROC AUC={}'.format(diff_roc))
+            print('remove: ', feature)
+            print
+            # if the drop in the roc is small and we remove the
+            # feature, we need to set the new roc to the one based on
+            # the remaining features
+            roc_full = roc_int
+            
+            # and append the feature to remove to the collecting list
+            features_to_remove.append(feature)
+    
+    # now the loop is finished, we evaluated all the features
+    print('DONE!!')
+    print('total features to remove: ', len(features_to_remove))
+    
+    # determine the features to keep (those we won't remove)
+    features_to_keep = [x for x in features if x not in features_to_remove]
+    print('total features to keep: ', len(features_to_keep))
+    
+    ```
 
 
 
@@ -364,3 +506,115 @@
   * If performance increase is bigger than threshold, it is an important feature, so keep it. If not, remove the feature. 
   * Repeat until all the features in the dataset is examined 
 
+* Code
+
+  * ```python
+    from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegressor
+    from sklearn.metrics import roc_auc_score, r2_score
+    
+    # 1. Train a ML model with all features
+    # build initial model using all the features
+    model_full = GradientBoostingClassifier(n_estimators=10, max_depth=4, random_state=10)
+    
+    model_full.fit(X_train, y_train)
+    
+    # calculate the roc-auc in the test set
+    y_pred_test = model_full.predict_proba(X_test)[:, 1]
+    roc_full = roc_auc_score(y_test, y_pred_test)
+    
+    
+    # 2. Get feature importance 
+    # get feature name and importance
+    features = pd.Series(model_full.feature_importances_)
+    features.index = X_train.columns
+    
+    # sort the features by importance
+    features.sort_values(ascending=False, inplace=True)
+    
+    # 3. Build a model with 1 features 
+    # build initial model using all the features
+    model_one_feature = GradientBoostingClassifier(n_estimators=10, max_depth=4, random_state=10)
+    
+    # train using only the most important feature
+    model_one_feature.fit(X_train[features[0]].to_frame(), y_train)
+    
+    # calculate the roc-auc in the test set
+    y_pred_test = model_one_feature.predict_proba(X_test[features[0]].to_frame())[:, 1]
+    
+    roc_first = roc_auc_score(y_test, y_pred_test)
+    
+    print('Test one feature xgb ROC AUC=%f' % (roc_first))
+    
+    
+    # 4. select features
+    # recursive feature addition:
+    
+    # first we arbitrarily set the increase in roc-auc
+    # if the increase is above this threshold,
+    # the feature will be kept
+    tol = 0.0001
+    
+    print('doing recursive feature addition')
+    
+    # we initialise a list where we will collect the
+    # features we should keep
+    features_to_keep = [features[0]]
+    
+    # set a counter to know which feature is being evaluated
+    count = 1
+    
+    # now we loop over all the features, in order of importance:
+    # remember that features in the list are ordered
+    # by importance
+    for feature in features[1:]:
+        print()
+        print('testing feature: ', feature, count, ' out of ', len(features))
+        count = count + 1
+    
+        # initialise model
+        model_int = GradientBoostingClassifier(n_estimators=10, max_depth=4, random_state=10)
+    
+        # fit model with the selected features
+        # and the feature to be evaluated
+        model_int.fit(
+            X_train[features_to_keep + [feature] ], y_train)
+    
+        # make a prediction over the test set
+        y_pred_test = model_int.predict_proba(
+            X_test[features_to_keep + [feature] ])[:, 1]
+    
+        # calculate the new roc-auc
+        roc_int = roc_auc_score(y_test, y_pred_test)
+        print('New Test ROC AUC={}'.format((roc_int)))
+    
+        # print the original roc-auc with one feature
+        print('Previous round Test ROC AUC={}'.format((roc_first)))
+    
+        # determine the increase in the roc-auc
+        diff_roc = roc_int - roc_first
+    
+        # compare the increase in roc-auc with the tolerance
+        # we set previously
+        if diff_roc >= tol:
+            print('Increase in ROC AUC={}'.format(diff_roc))
+            print('keep: ', feature)
+            print
+            # if the increase in the roc is bigger than the threshold
+            # we keep the feature and re-adjust the roc-auc to the new value
+            # considering the added feature
+            roc_first = roc_int
+            
+            # and we append the feature to keep to the list
+            features_to_keep.append(feature)
+        else:
+            # we ignore the feature
+            print('Increase in ROC AUC={}'.format(diff_roc))
+            print('remove: ', feature)
+            print
+    
+    # now the loop is finished, we evaluated all the features
+    print('DONE!!')
+    print('total features to keep: ', len(features_to_keep))
+    ```
+
+  * 
