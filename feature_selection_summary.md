@@ -293,10 +293,15 @@
   * Code
   
     * ```python
-      
-      ```
+      from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+      from sklearn.feature_selection import SelectFromModel
   
-    * 
+      sel_ = SelectFromModel(RandomForestClassifier(n_estimators=10, random_state=10))
+      sel_.fit(X_train, y_train)
+      
+      selected_feat = X_train.columns[(sel_.get_support())]
+      ```
+      
 * Recursive feature elimination using random forest 
   * Build a random forest model 
 
